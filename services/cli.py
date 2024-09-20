@@ -113,7 +113,7 @@ def exit_program():
     click.echo("Exiting...")
     exit()
 
-# Individual command implementations
+
 def login_user():
     """Login as a user (client)."""
     username = click.prompt("Username")

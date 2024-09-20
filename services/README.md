@@ -1,4 +1,4 @@
-### Maintenance Services CLI
+### Maintenance Services App
 
 A command-line interface (CLI) tool for managing a maintenance services system. This application allows users to initialize the database, register and log in users and technicians, manage service categories, and services.
 
