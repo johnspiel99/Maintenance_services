@@ -107,6 +107,27 @@ def update_delete_categories():
     else:
         click.echo("Invalid choice.")
 
+@menu.command(name='5')
+def add_service_to_category():
+    """Add a new service to a category."""
+    list_categories()
+    category_id = click.prompt("Enter Category ID", type=int)
+    
+    service_name = click.prompt("Enter Service Name")
+    
+    engine = get_engine()
+    session = get_session(engine)
+
+    category = session.query(Category).filter_by(id=category_id).first()
+    
+    if category:
+        new_service = Service(name=service_name, category=category)
+        session.add(new_service)
+        session.commit()
+        click.echo(f"Service '{service_name}' added to category '{category.name}' successfully!")
+    else:
+        click.echo(f"Category ID {category_id} not found.")
+
 @menu.command(name='0')
 def exit_program():
     """Exit the program."""
@@ -183,7 +204,7 @@ def register_technician():
     click.echo(f"Technician '{username}' registered successfully!")
 
 def add_category():
-    """Add a new category"""
+    """Add a new category."""
     name = click.prompt("Category Name")
     engine = get_engine()
     session = get_session(engine)
@@ -194,7 +215,7 @@ def add_category():
     click.echo(f"Category '{name}' added successfully!")
 
 def list_categories():
-    """List all categories"""
+    """List all categories."""
     engine = get_engine()
     session = get_session(engine)
 
@@ -203,7 +224,7 @@ def list_categories():
         click.echo(f"ID: {category.id}, Name: {category.name}")
 
 def list_technicians_cmd():
-    """List all technicians"""
+    """List all technicians."""
     engine = get_engine()
     session = get_session(engine)
 
@@ -212,7 +233,7 @@ def list_technicians_cmd():
         click.echo(f"ID: {technician.id}, Username: {technician.username}, Name: {technician.name}")
 
 def update_category():
-    """Update a category"""
+    """Update a category."""
     category_id = click.prompt("Category ID", type=int)
     new_name = click.prompt("New Category Name")
     engine = get_engine()
@@ -227,7 +248,7 @@ def update_category():
         click.echo(f"Category ID {category_id} not found.")
 
 def delete_category():
-    """Delete a category"""
+    """Delete a category."""
     category_id = click.prompt("Category ID", type=int)
     engine = get_engine()
     session = get_session(engine)
@@ -239,6 +260,7 @@ def delete_category():
         click.echo(f"Category ID {category_id} deleted successfully!")
     else:
         click.echo(f"Category ID {category_id} not found.")
+
 
 # Register commands with the CLI group
 cli.add_command(initdb)
