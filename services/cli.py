@@ -19,7 +19,7 @@ def initdb():
 def menu():
     """Main menu for the CLI application."""
     while True:
-        click.echo("\n--- Main Menu ---")
+        click.echo("\n--- Welcome to Maintenance Service Main Menu ---")
         click.echo("1. Login/Register")
         click.echo("2. List/Add Categories")
         click.echo("3. List Technicians")
