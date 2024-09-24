@@ -48,6 +48,20 @@ def menu():
         else:
             click.echo("Invalid choice. Please try again.")
 
+# Function for listing technicians
+def list_technicians_cmd():
+    """List all technicians."""
+    engine = get_engine()
+    session = get_session(engine)
+
+    technicians = session.query(Technician).all()
+    if technicians:
+        click.echo("\n--- List of Technicians ---")
+        for technician in technicians:
+            click.echo(f"ID: {technician.id}, Name: {technician.name}, Username: {technician.username}")
+    else:
+        click.echo("No technicians found.")
+
 # Function for adding a service to a category
 def add_service_to_category():
     """Add a new service to a category."""
@@ -263,7 +277,6 @@ def delete_category():
         click.echo(f"Category ID {category_id} deleted successfully!")
     else:
         click.echo(f"Category ID {category_id} not found.")
-
 
 if __name__ == '__main__':
     cli()
