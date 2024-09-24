@@ -15,12 +15,63 @@ def initdb():
     create_tables(engine)
     click.echo("Database initialized successfully!")
 
-@cli.group()
+@cli.command()
 def menu():
     """Main menu for the CLI application."""
-    pass
+    while True:
+        click.echo("\n--- Main Menu ---")
+        click.echo("1. Login/Register")
+        click.echo("2. List/Add Categories")
+        click.echo("3. List Technicians")
+        click.echo("4. Update/Delete Categories")
+        click.echo("5. Add Service to Category")
+        click.echo("0. Exit")
+        
+        choice = click.prompt("Choose an option", type=int)
 
-@menu.command(name='1')
+        if choice == 1:
+            login_register()
+        elif choice == 2:
+            list_add_categories()
+        elif choice == 3:
+            list_technicians_cmd()
+        elif choice == 4:
+            update_delete_categories()
+        elif choice == 5:
+            try:
+                add_service_to_category()
+            except Exception as e:
+                click.echo(f"An error occurred while adding a service to the category: {e}")
+        elif choice == 0:
+            click.echo("Exiting the program...")
+            break
+        else:
+            click.echo("Invalid choice. Please try again.")
+
+# Function for adding a service to a category
+def add_service_to_category():
+    """Add a new service to a category."""
+    try:
+        list_categories()
+        category_id = click.prompt("Enter Category ID", type=int)
+        service_name = click.prompt("Enter Service Name")
+        
+        engine = get_engine()
+        session = get_session(engine)
+
+        category = session.query(Category).filter_by(id=category_id).first()
+
+        if category:
+            new_service = Service(name=service_name, category=category)
+            session.add(new_service)
+            session.commit()
+            click.echo(f"Service '{service_name}' added to category '{category.name}' successfully!")
+        else:
+            click.echo(f"Category ID {category_id} not found.")
+    except Exception as e:
+        click.echo(f"An error occurred: {e}")
+
+# Other command functions
 def login_register():
     """Login and Register Options."""
     click.echo("\n1. Login")
@@ -64,9 +115,8 @@ def login_register():
     elif choice == 0:
         return  # Return to the main menu
     else:
-        click.echo("Invalid choice.")
+        click.echo("Invalid choice. Please try again.")
 
-@menu.command(name='2')
 def list_add_categories():
     """List and Add Categories."""
     click.echo("\n1. List Categories")
@@ -82,14 +132,8 @@ def list_add_categories():
     elif choice == 0:
         return  # Return to the main menu
     else:
-        click.echo("Invalid choice.")
+        click.echo("Invalid choice. Please try again.")
 
-@menu.command(name='3')
-def list_technicians():
-    """List Technicians."""
-    list_technicians_cmd()
-
-@menu.command(name='4')
 def update_delete_categories():
     """Update and Delete Categories."""
     click.echo("\n1. Update Category")
@@ -105,35 +149,7 @@ def update_delete_categories():
     elif choice == 0:
         return  # Return to the main menu
     else:
-        click.echo("Invalid choice.")
-
-@menu.command(name='5')
-def add_service_to_category():
-    """Add a new service to a category."""
-    list_categories()
-    category_id = click.prompt("Enter Category ID", type=int)
-    
-    service_name = click.prompt("Enter Service Name")
-    
-    engine = get_engine()
-    session = get_session(engine)
-
-    category = session.query(Category).filter_by(id=category_id).first()
-    
-    if category:
-        new_service = Service(name=service_name, category=category)
-        session.add(new_service)
-        session.commit()
-        click.echo(f"Service '{service_name}' added to category '{category.name}' successfully!")
-    else:
-        click.echo(f"Category ID {category_id} not found.")
-
-@menu.command(name='0')
-def exit_program():
-    """Exit the program."""
-    click.echo("Exiting...")
-    exit()
-
+        click.echo("Invalid choice. Please try again.")
 
 def login_user():
     """Login as a user (client)."""
@@ -170,12 +186,10 @@ def register_user():
     engine = get_engine()
     session = get_session(engine)
 
-    # Check if username already exists
     if session.query(User).filter_by(username=username).first():
         click.echo(f"Username '{username}' is already taken.")
         return
 
-    # Create new user and set password
     user = User(username=username)
     user.set_password(password)
     
@@ -190,18 +204,25 @@ def register_technician():
     engine = get_engine()
     session = get_session(engine)
 
-    # Check if technician username already exists
     if session.query(Technician).filter_by(username=username).first():
         click.echo(f"Technician '{username}' is already registered.")
         return
 
-    # Create new technician and set password
     technician = Technician(name=username, username=username)
     technician.set_password(password)
 
     session.add(technician)
     session.commit()
     click.echo(f"Technician '{username}' registered successfully!")
+
+def list_categories():
+    """List all categories."""
+    engine = get_engine()
+    session = get_session(engine)
+
+    categories = session.query(Category).all()
+    for category in categories:
+        click.echo(f"ID: {category.id}, Name: {category.name}")
 
 def add_category():
     """Add a new category."""
@@ -213,24 +234,6 @@ def add_category():
     session.add(category)
     session.commit()
     click.echo(f"Category '{name}' added successfully!")
-
-def list_categories():
-    """List all categories."""
-    engine = get_engine()
-    session = get_session(engine)
-
-    categories = session.query(Category).all()
-    for category in categories:
-        click.echo(f"ID: {category.id}, Name: {category.name}")
-
-def list_technicians_cmd():
-    """List all technicians."""
-    engine = get_engine()
-    session = get_session(engine)
-
-    technicians = session.query(Technician).all()
-    for technician in technicians:
-        click.echo(f"ID: {technician.id}, Username: {technician.username}, Name: {technician.name}")
 
 def update_category():
     """Update a category."""
@@ -261,10 +264,6 @@ def delete_category():
     else:
         click.echo(f"Category ID {category_id} not found.")
 
-
-# Register commands with the CLI group
-cli.add_command(initdb)
-cli.add_command(menu)
 
 if __name__ == '__main__':
     cli()
